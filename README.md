@@ -9,3 +9,28 @@ time, while in the case of `pwcorr`, only one of these can be done.
 
 ## How to use
 download `pwcorr_a.ado` and `pwcorr_a.hlp` and put them in `..\stata15\ado\plus\p`. Then, type `help pwcorr_a` in `stata` command line. 
+
+## What is the difference between `pwcorr` and `pwcorr_a` ?
+```
+
+.   sysuse auto, clear
+(1978 Automobile Data)
+
+.   pwcorr price wei len mpg
+
+             |    price   weight   length      mpg
+-------------+------------------------------------
+       price |   1.0000 
+      weight |   0.5386   1.0000 
+      length |   0.4318   0.9460   1.0000 
+         mpg |  -0.4686  -0.8072  -0.7958   1.0000 
+
+.   pwcorr_a price wei len mpg
+
+             |  price   weight   length     mpg   
+-------------+------------------------------------
+   price     |    1.000   
+   weight    |    0.539***   1.000   
+   length    |    0.432***   0.946***   1.000   
+    mpg      |   -0.469***  -0.807***  -0.796***   1.000  
+```
