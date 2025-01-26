@@ -1,11 +1,19 @@
-*! version 3.0.8  13sep2000
-* Modified by Arlion, 2005.7.12
+*! version 3.0.9  26Jan2025
+* V1, 2005.7.12
 * To add star at 1% , 5% , 10% significant levels
 
+cap program drop pwcorr_a
 program define pwcorr_a, byable(recall)
 	version 6
-	syntax [varlist(min=2)] [if] [in] [aw fw] [, /* 
-		*/ Bonferroni Obs Print(real -1) SIDak SIG star1(real 0.01) star5(real 0.05) star10(real 0.1) ]
+	*syntax [varlist(min=2)] [if] [in] [aw fw] [, /* 
+	*	*/ Bonferroni Obs Print(real -1) SIDak SIG star1(real 0.01) star5(real 0.05) star10(real 0.1) ]
+		
+	syntax [varlist(min=2 ts)] [if] [in] [aw fw] [, ///
+		Bonferroni Obs Print(real -1) SIDak SIG ///
+		STar(real -1) LISTwise CASEwise ///
+        star1(real 0.01) star5(real 0.05) star10(real 0.1) ///
+		Format(string)]
+		
 	tempvar touse
 	mark `touse' `if' `in' 		/* but do not markout varlist */ 
 	tokenize `varlist'
@@ -32,15 +40,21 @@ program define pwcorr_a, byable(recall)
 		local nrho=(`nvar'*(`nvar'-1))/2
 		if "`bonferr'"!="" { local adj `nrho' }
 	}
-/*
-	if (`star'>=1) {
-		local star = `star'/100
-		if `star'>=1 {
-			di in red "star() out of range"
-			exit 198
-		}
-	}
-*/
+
+	
+*----------Arlion new added --------begin---20130622--
+    if `"`format'"' != "" {
+       capt local tmp : display `format' 1
+       if _rc {
+          di as err `"invalid %fmt in format(): `format2'"'
+          exit 120
+       }
+    }
+	else{
+	   local format %7.3f
+	}	
+*----------Arlion new added --------over--------------
+
 	if (`print'>=1) {
 		local print = `print'/100
 		if `print'>=1 {
@@ -57,7 +71,8 @@ program define pwcorr_a, byable(recall)
 		local j `j0'
 		di in smcl in gr _skip(13) "{c |}" _c
 		while (`j'<=`j1') {
-			di in gr %9s abbrev("``j''",8) _c
+		   *di in gr %9s abbrev("``j''",8) _c
+			di in gr %~9s abbrev("``j''",8) _c  // Arlion 2013-06-22
 			local j=`j'+1
 		}
 		local l=9*(`j1'-`j0'+1)
@@ -65,7 +80,8 @@ program define pwcorr_a, byable(recall)
 
 		local i `j0'
 		while `i'<=`nvar' {
-			di in smcl in gr %12s abbrev("``i''",12) " {c |} " _c
+		   *di in smcl in gr %12s abbrev("``i''",12) " {c |} " _c
+			di in smcl in gr %~12s abbrev("``i''",12) " {c |} " _c   // Arlion 2013-06-22
 			local j `j0'
 			while (`j'<=min(`j1',`i')) {
 				cap corr ``i'' ``j'' if `touse' `weight'
@@ -101,7 +117,9 @@ program define pwcorr_a, byable(recall)
 				else local ast "   "
 				if `p`j''<=`print' | `print'==-1 |`i'==`j' {
 //					di " " %7.4f `c`j'' "`ast'" _c
-                             di _col(1) %7.3f `c`j'' "`ast'" _col(2) _c
+                   * di _col(1) %7.3f `c`j'' "`ast'" _col(2) _c  // Arlion 20050503
+				   *di " " %7.4f `c`j'' "`ast'" _c               // Arlion modify
+					di " " `format' `c`j'' "`ast'"  _c	 // Arlion 20130622						 
 				}
 				else 	di _skip(9) _c
 				local j=`j'+1
@@ -114,7 +132,8 @@ program define pwcorr_a, byable(recall)
 				local j `j0'
 				while (`j'<=min(`j1',`i'-1)) {
 					if `p`j''<=`print' | `print'==-1 {
-						di "   " %7.4f `p`j'' _c 
+						* di "   " %7.4f `p`j'' _c  
+						di " " `format' `c`j'' "`ast'"  _c  // Arlion 20130622	
 					}
 					else	di _skip(9) _c
 					local j=`j'+1
@@ -127,7 +146,8 @@ program define pwcorr_a, byable(recall)
 				while (`j'<=min(`j1',`i')) {
 					if `p`j''<=`print' | `print'==-1 /*
 					*/ |`i'==`j' {
-						di "  " %7.0g `n`j'' _c
+						*di "  " %7.0g `n`j'' _c
+						di " " `format' `c`j'' "`ast'"  _c // Arlion 20130622	
 					}
 					else	di _skip(9) _c
 					local j=`j'+1

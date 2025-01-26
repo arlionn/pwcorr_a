@@ -1,0 +1,12 @@
+v 3.0.9
+d pwcorr_a: A modified version of Stata official pwcorr command
+d 
+d pwcorr_a can present 1%, 5% and 10% significant level asterisks at the same time, while in the case of pwcorr, only one of these can be done.
+d 
+d Distribution-Date:   20210409
+d Yujun lian
+d arlionn@163.com
+d https://gitee.com/arlionn/pwcorr_a
+d 
+F pwcorr_a.ado
+F pwcorr_a.sthlp

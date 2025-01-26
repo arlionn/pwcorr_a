@@ -1,0 +1,9 @@
+v 3.0.9
+d Yujun lian
+d arlionn@163.com
+d https://gitee.com/arlionn/pwcorr_a
+
+d 'pwcorr_a': A modified version of stata pwcorr command
+d `pwcorr_a` can present 1%, 5% and 10% significant level asterisks at the same time
+
+p pwcorr_a
